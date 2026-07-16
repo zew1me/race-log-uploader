@@ -72,14 +72,15 @@ If not found, for each race activity:
 
 1. Use the activity name, date, and location (city/venue if present in the
    name/description) to web search for the official results — typical
-   sources are the event's own results page, Athlinks, UltraSignup,
-   RaceRoster, <https://www.road-results.com/>, <https://www.cross-results.com/>, or similar timing sites.
+   sources are the event's own results page, <https://www.road-results.com/>, <https://www.cross-results.com/>, <https://gc.trackscoreboard.com/>,  Athlinks, UltraSignup,
+   RaceRoster, or similar timing sites.
 2. Extract what you can find: overall place, gender/category place, field
    size, official finish time (if it differs from Strava's moving time), race
    distance/category name.
 3. If no results can be found after a reasonable search, proceed with what
    Strava has and leave placement fields blank — don't block the whole sync
-   on one hard-to-find race. Note this to the user in the summary.
+   on one hard-to-find race. Note this to the user in the summary. Skip an
+   entry and let the user know if you can't find sufficient information to submit the race log entry.
 
 ## Step 4 — Fill out the WordPress form
 
