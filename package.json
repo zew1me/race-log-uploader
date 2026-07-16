@@ -1,0 +1,25 @@
+{
+  "name": "race-log-uploader",
+  "private": true,
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "prepare": "lefthook install",
+    "format:sync": "biome check --write .agents/skills/sync-race-log/scripts",
+    "lint:sync": "biome check .agents/skills/sync-race-log/scripts",
+    "typecheck:sync": "tsc --project .agents/skills/sync-race-log/scripts/tsconfig.json",
+    "test:sync": "node --test .agents/skills/sync-race-log/scripts/test/*.test.ts",
+    "knip:sync": "cd .agents/skills/sync-race-log/scripts && ../../../../node_modules/.bin/knip --config knip.json",
+    "duplicates:sync": "jscpd --config .agents/skills/sync-race-log/scripts/.jscpd.json .agents/skills/sync-race-log/scripts",
+    "verify:sync": "npm run lint:sync && npm run typecheck:sync && npm run test:sync && npm run knip:sync && npm run duplicates:sync"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.4",
+    "@types/node": "^26.1.1",
+    "jscpd": "^5.0.12",
+    "knip": "^6.27.0",
+    "lefthook": "^2.1.10",
+    "typescript": "^7.0.2"
+  }
+}

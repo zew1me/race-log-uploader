@@ -1,0 +1,4 @@
+{
+  "entry": ["read-state.ts", "write-state.ts", "test/**/*.test.ts"],
+  "project": ["**/*.ts"]
+}

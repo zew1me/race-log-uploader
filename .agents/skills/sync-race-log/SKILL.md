@@ -60,13 +60,13 @@ partial state file never lands in `.agents/state/`.
 One-time setup (skip if `scripts/node_modules/` already exists):
 
 ```bash
-cd .claude/skills/sync-race-log/scripts && npm install
+cd .agents/skills/sync-race-log/scripts && npm install
 ```
 
 Read the current state:
 
 ```bash
-npx tsx .claude/skills/sync-race-log/scripts/read-state.ts
+node .agents/skills/sync-race-log/scripts/read-state.ts
 # -> {"exists":false}  or  {"exists":true,"state":{...}}
 ```
 
@@ -140,7 +140,7 @@ After processing all race activities (or if the user stops partway through),
 write the updated state via the script — never edit the JSON file directly:
 
 ```bash
-npx tsx .claude/skills/sync-race-log/scripts/write-state.ts \
+node .agents/skills/sync-race-log/scripts/write-state.ts \
   '{"last_synced_date":"2026-06-05","synced_activity_ids":["1234567890","1234567891"]}'
 ```
 
