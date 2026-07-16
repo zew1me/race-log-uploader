@@ -3,6 +3,7 @@
   "threshold": 0,
   "minLines": 8,
   "minTokens": 70,
-  "reporters": ["console"],
+  "reporters": ["ai"],
+  "noTips": true,
   "ignore": ["**/node_modules/**"]
 }
