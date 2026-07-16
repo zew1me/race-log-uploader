@@ -1,0 +1,20 @@
+pre-commit:
+  commands:
+    biome:
+      glob: ".agents/skills/sync-race-log/scripts/*.ts"
+      run: npm exec -- biome check --write -- {staged_files}
+      stage_fixed: true
+
+pre-push:
+  parallel: true
+  commands:
+    lint:
+      run: npm run lint:sync
+    typecheck:
+      run: npm run typecheck:sync
+    test:
+      run: npm run test:sync
+    knip:
+      run: npm run knip:sync
+    duplicates:
+      run: npm run duplicates:sync
