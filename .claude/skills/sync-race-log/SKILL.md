@@ -1,6 +1,6 @@
 ---
 name: sync-race-log
-description: Sync race-tagged Strava activities into the tacotimenw.bike WordPress race log form. Use when the user asks to "sync races", "update the race log", "add my races to the site", "check for new races", or similar. Can be run on a schedule (e.g. via a Cowork scheduled workflow) or on demand with an explicit time period.
+description: Sync race-tagged Strava activities into the tacotimenw.bike WordPress race log form. Use when the user asks to "sync races", "update the race log", "add my races to the site", "check for new races", or similar. Can be run on a schedule (e.g. via a Cowork scheduled workflow) in discovery/report-only mode, or on demand — interactively, with the user present to confirm submissions — with an explicit time period.
 ---
 
 # Sync Race Log
@@ -11,6 +11,23 @@ each one in the WordPress race log at
 `https://tacotimenw.bike/wp-admin/post-new.php?post_type=race_log`.
 
 See [AGENTS.md](../../AGENTS.md) at the repo root for background on this project.
+
+## Scheduled vs. interactive runs
+
+Step 4's confirm-before-submit requirement assumes a human is present to
+answer the prompt. On a scheduled/unattended run there is nobody there, so
+this skill must never treat a scheduled invocation as authorization to
+submit:
+
+- **Scheduled run (e.g. a Cowork scheduled workflow, or any invocation where
+  no user is actively present to respond):** stop after Step 3. Do not open
+  the WordPress form or submit anything. Instead, produce a report of the
+  races found and their enriched data, and end the run there — submission
+  happens later, interactively, when a user reviews the report and explicitly
+  asks to proceed with the form-filling steps.
+- **On-demand run:** if the user is present in the conversation, continue
+  through Step 4 and Step 5 as normal, including the required per-entry (or
+  explicitly-batched) confirmation before any Publish/Submit click.
 
 ## Hard constraint: never enter the WordPress password
 
@@ -94,9 +111,18 @@ For each race, in the browser:
    submission with personal data, so it needs explicit per-entry (or
    explicitly-batched, if the user says "just do all of them") approval —
    don't submit silently.
-5. On confirmed submission, record the activity ID in
-   `synced_activity_ids` and, if this is the newest activity processed so
-   far this run, update `last_synced_date` to its date.
+5. On confirmed submission, record the activity ID in `synced_activity_ids`.
+   Process races within the sync window in date order (oldest first), and
+   only advance `last_synced_date` to cover a **contiguous run of confirmed
+   submissions starting from the beginning of the window** — i.e. update it
+   to a race's date only if every race at or before that date in the window
+   was successfully submitted. If a race is skipped, declined, or fails to
+   submit, stop advancing `last_synced_date` at the last date before that
+   race, even if later races in the same run are confirmed — this leaves the
+   skipped race (and everything after it) in the window for the next sync so
+   it isn't lost. `synced_activity_ids` still records every activity that was
+   actually submitted, so already-submitted races later in the window aren't
+   re-added on the next run.
 
 ## Step 5 — Wrap up
 
