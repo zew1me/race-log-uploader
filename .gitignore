@@ -1,0 +1,192 @@
+# Ingested from github.com/github/gitignore
+#
+# Source templates:
+# - https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
+# - https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+# - https://github.com/github/gitignore/blob/main/Python.gitignore
+# - https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+
+# -----------------------------------------------------------------------------
+# macOS (GitHub: Global/macOS.gitignore)
+# -----------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon[ ]
+._*
+__MACOSX/
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.com.apple.timemachine.supported
+.PKInstallSandboxManager
+.PKInstallSandboxManager-SystemSoftware
+.hotfiles.btree
+.vol
+.file
+.disk_label*
+lost+found
+.HFS+
+Private Directory Data
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+Backups.backupdb
+.MobileBackups
+.MobileBackups.trash
+MobileBackups.trash
+tmbootpicker.efi
+
+# -----------------------------------------------------------------------------
+# Visual Studio Code (GitHub: Global/VisualStudioCode.gitignore)
+# -----------------------------------------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+!*.code-workspace
+*.vsix
+
+# -----------------------------------------------------------------------------
+# Python (GitHub: Python.gitignore)
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+*.lcov
+.hypothesis/
+.pytest_cache/
+cover/
+.pybuilder/
+target/
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+.pdm-python
+.pdm-build/
+.pixi/*
+!.pixi/config.toml
+__pypackages__/
+celerybeat-schedule*
+celerybeat.pid
+*.rdb
+*.aof
+*.pid
+cython_debug/
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.spyderproject
+.spyproject
+.ropeproject
+
+# -----------------------------------------------------------------------------
+# JetBrains IDEs (GitHub: Global/JetBrains.gitignore)
+# -----------------------------------------------------------------------------
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/aws.xml
+.idea/**/contentModel.xml
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/**/gradle.xml
+.idea/**/libraries
+.idea_modules/
+atlassian-ide-plugin.xml
+.idea/replstate.xml
+.idea/sonarlint/
+.idea/sonarlint.xml
+http-client.private.env.json
+.idea/httpRequests
+.idea/caches/
+
+# -----------------------------------------------------------------------------
+# Environment files and local secrets
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+*.env
+*.local
+!.envrc.example
+.envrc
+!.envrc.example
+.secrets/
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+credentials.json
+service-account*.json
+
+# -----------------------------------------------------------------------------
+# Local tooling and generated files
+# -----------------------------------------------------------------------------
+.serena/
+.codex/
+*.log
+tmp/
+temp/
