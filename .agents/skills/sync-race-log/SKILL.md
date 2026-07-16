@@ -1,7 +1,5 @@
 ---
 name: sync-race-log
-description: Sync race-tagged Strava activities into the tacotimenw.bike WordPress race log form. Invoke explicitly with /sync-race-log — this skill submits form data and touches state, so it should not be triggered by inferring intent from conversation. Can be run on a schedule (e.g. via a Cowork scheduled workflow) in discovery/report-only mode, or on demand — interactively, with the user present to confirm submissions — with an explicit time period.
-disable-model-invocation: true
 ---
 
 # Sync Race Log
