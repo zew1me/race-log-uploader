@@ -31,6 +31,12 @@ test("read-state reports a missing state file", () => {
   });
 });
 
+test("write-state reports its input signature", () => {
+  withTempDirectory((directory) => {
+    assert.match(runScript(writeScript, directory, "--help"), /--watermark YYYY-MM-DD/);
+  });
+});
+
 test("write-state writes validated data that read-state returns", () => {
   withTempDirectory((directory) => {
     const payload = {
@@ -38,7 +44,16 @@ test("write-state writes validated data that read-state returns", () => {
       synced_activity_ids: ["123", "456"],
     };
 
-    runScript(writeScript, directory, JSON.stringify(payload));
+    runScript(
+      writeScript,
+      directory,
+      "--watermark",
+      "2026-07-16",
+      "--submitted-activity",
+      "123",
+      "--submitted-activity",
+      "456",
+    );
 
     assert.deepEqual(JSON.parse(runScript(readScript, directory)), {
       exists: true,
@@ -54,8 +69,7 @@ test("write-state writes validated data that read-state returns", () => {
 test("write-state rejects invalid data without creating a state file", () => {
   withTempDirectory((directory) => {
     assert.throws(
-      () =>
-        runScript(writeScript, directory, '{"last_synced_date":"bad","synced_activity_ids":[]}'),
+      () => runScript(writeScript, directory, "--watermark", "bad"),
       /Payload failed schema validation/,
     );
     assert.deepEqual(JSON.parse(runScript(readScript, directory)), { exists: false });

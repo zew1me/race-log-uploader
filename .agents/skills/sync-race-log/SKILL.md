@@ -1,5 +1,6 @@
 ---
 name: sync-race-log
+description: sync-race-log
 ---
 
 # Sync Race Log
@@ -10,23 +11,6 @@ each one in the WordPress race log at
 `https://tacotimenw.bike/wp-admin/post-new.php?post_type=race_log`.
 
 See [AGENTS.md](../../AGENTS.md) at the repo root for background on this project.
-
-## Scheduled vs. interactive runs
-
-Step 4's confirm-before-submit requirement assumes a human is present to
-answer the prompt. On a scheduled/unattended run there is nobody there, so
-this skill must never treat a scheduled invocation as authorization to
-submit:
-
-- **Scheduled run (e.g. a Cowork scheduled workflow, or any invocation where
-  no user is actively present to respond):** stop after Step 3. Do not open
-  the WordPress form or submit anything. Instead, produce a report of the
-  races found and their enriched data, and end the run there — submission
-  happens later, interactively, when a user reviews the report and explicitly
-  asks to proceed with the form-filling steps.
-- **On-demand run:** if the user is present in the conversation, continue
-  through Step 4 and Step 5 as normal, including the required per-entry (or
-  explicitly-batched) confirmation before any Publish/Submit click.
 
 ## Logging in 
 
@@ -44,16 +28,9 @@ When the workflow needs an authenticated WordPress session:
 
 ## Step 1 — Determine the sync window
 
-State file: `.agents/state/race-sync-state.json` (gitignored — local only),
-schema: `{ last_synced_date: "YYYY-MM-DD", synced_activity_ids: string[] }`
-(max 50 ids). `synced_activity_ids` is a belt-and-suspenders de-dupe list in
-case an activity falls exactly on the boundary date.
-
-Read and write it only through the scripts in `scripts/` (run from the repo
-root) — never hand-edit or freeform-write the JSON. They validate the
-payload against a shared zod schema (`scripts/schema.ts`) before touching
-disk, and the write is atomic (temp file + rename), so a malformed or
-partial state file never lands in `.agents/state/`.
+Use the TypeScript state tools below as the only state interface. Do not inspect
+or edit the backing file, and do not infer its schema. The tools validate state
+and make writes atomic.
 
 One-time setup (skip if `scripts/node_modules/` already exists):
 
@@ -69,8 +46,9 @@ node .agents/skills/sync-race-log/scripts/read-state.ts
 ```
 
 - If the user gave an explicit period ("last 2 weeks", "since June 1",
-  specific dates), use that and skip reading the state file.
-- Otherwise, use `[last_synced_date, today]` from the state read above.
+  specific dates), use that and skip the state tool.
+- Otherwise, use the state returned by the tool to determine the sync window
+  and `today`, where
   `today` is the `currentDate` from context.
 - If `exists` is `false`, ask the user for a starting date instead of
   guessing one.
@@ -81,20 +59,21 @@ Use the Strava connector's `list_activities` tool with `range_start` /
 `range_end` covering the sync window and `include_tags: true`.
 
 An activity counts as a race if its `activity_tags` include a tag equal to
-(case-insensitive) `"race"`. Skip anything already in `synced_activity_ids`.
+(case-insensitive) `"race"`. Skip any activity the state tool reports as
+already submitted.
 
-If none are found, report that and stop — don't touch the state file (nothing
-was synced, so `last_synced_date` shouldn't move).
+If none are found, report that and stop — don't update state.
 
 ## Step 3 — Enrich each race with results data
 
-Strava won't have finish position, field size, or category placing. For each
-race activity:
+Strava may have have finish position, field size, or category placing in the activity details.
+But it also may not. If you can infer them, do so. Do not make up data that isn't clearly supported by the available information.
+If not found, for each race activity:
 
 1. Use the activity name, date, and location (city/venue if present in the
    name/description) to web search for the official results — typical
    sources are the event's own results page, Athlinks, UltraSignup,
-   RaceRoster, or similar timing sites.
+   RaceRoster, <https://www.road-results.com/>, <https://www.cross-results.com/>, or similar timing sites.
 2. Extract what you can find: overall place, gender/category place, field
    size, official finish time (if it differs from Strava's moving time), race
    distance/category name.
@@ -119,33 +98,32 @@ For each race, in the browser:
    submission with personal data, so it needs explicit per-entry (or
    explicitly-batched, if the user says "just do all of them") approval —
    don't submit silently.
-5. On confirmed submission, record the activity ID in `synced_activity_ids`.
+5. On confirmed submission, record the activity through the state tool.
    Process races within the sync window in date order (oldest first), and
-   only advance `last_synced_date` to cover a **contiguous run of confirmed
+   only advance the sync watermark to cover a **contiguous run of confirmed
    submissions starting from the beginning of the window** — i.e. update it
    to a race's date only if every race at or before that date in the window
    was successfully submitted. If a race is skipped, declined, or fails to
-   submit, stop advancing `last_synced_date` at the last date before that
+   submit, stop advancing the sync watermark at the last date before that
    race, even if later races in the same run are confirmed — this leaves the
    skipped race (and everything after it) in the window for the next sync so
-   it isn't lost. `synced_activity_ids` still records every activity that was
-   actually submitted, so already-submitted races later in the window aren't
-   re-added on the next run.
+   it isn't lost. Still record every activity that was actually submitted, so
+   later confirmed races are not re-added on the next run.
 
 ## Step 5 — Wrap up
 
 After processing all race activities (or if the user stops partway through),
-write the updated state via the script — never edit the JSON file directly:
+write the updated state via the TypeScript tool. First ask the tool for its
+current input signature; never inspect or edit the backing state directly:
 
 ```bash
-node .agents/skills/sync-race-log/scripts/write-state.ts \
-  '{"last_synced_date":"2026-06-05","synced_activity_ids":["1234567890","1234567891"]}'
+node .agents/skills/sync-race-log/scripts/write-state.ts --help
 ```
 
-Build the payload from what was *actually* submitted (per the contiguous-run
-rule in Step 4.5), not from everything found in Step 2. The script rejects a
-malformed payload (e.g. a non-`YYYY-MM-DD` date) and leaves the existing
-state file untouched, so a bad write can't corrupt the watermark.
+Call the tool using that signature with state derived only from what was
+actually submitted (per the contiguous-run rule in Step 4.5), not from
+everything found in Step 2. The tool validates its input and preserves the
+existing state if validation fails.
 
 Then report a short summary: races added, races skipped (and why), and the
-new `last_synced_date`.
+new sync watermark.
