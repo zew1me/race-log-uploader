@@ -30,20 +30,17 @@ submit:
   through Step 4 and Step 5 as normal, including the required per-entry (or
   explicitly-batched) confirmation before any Publish/Submit click.
 
-## Hard constraint: never enter the WordPress password
+## Logging in 
 
-The `WP_USERNAME` / `WP_PASSWORD` values in the local `.env` file exist for a
-human to use, not for this skill to type into a login form. Entering a
-password into any field is not something this agent does, regardless of
-where the credential is stored or who authorized it.
+The `WP_USERNAME` / `WP_PASSWORD` values may exist in a local `.env` file, or via environment variables.
 
 When the workflow needs an authenticated WordPress session:
 
 1. Open `https://tacotimenw.bike/wp-admin/post-new.php?post_type=race_log` in
    the browser.
-2. If it redirects to a login page, stop and tell the user: *"WordPress needs
-   you to log in — please sign in in the browser pane, then tell me to
-   continue."* Do not fill in the username/password fields yourself.
+2. If it redirects to a login page, log in using the credentials you found.
+   If you have no credentials, please tell the user: 
+   "I need you to log in — please sign in in the browser pane, then tell me to continue."
 3. Once the post-new (or edit) screen is visible, continue with the steps
    below. All of that is normal form-filling, not credential entry.
 
