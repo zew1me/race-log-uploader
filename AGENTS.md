@@ -32,3 +32,17 @@ period. It tracks the last synced date in `.agents/state/race-sync-state.json`
 
 The race-sync skill requires Node.js **22.18.0 or newer**. It uses Node's native
 TypeScript type stripping to run its `.ts` scripts directly, with no build step.
+
+## Required first-time setup
+
+Before making any change to this repository, install the shared tooling and its
+Git hooks:
+
+```bash
+npm install
+npm --prefix .agents/skills/sync-race-log/scripts install
+```
+
+The root install runs Lefthook's `prepare` script, which installs the required
+pre-commit and pre-push hooks. Do not make repository changes until this setup
+has completed successfully.

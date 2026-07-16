@@ -14,3 +14,16 @@ The canonical skill lives at
 - Run `npm install` at the repository root to install development quality tools.
 - Run `npm install` in `.agents/skills/sync-race-log/scripts` to install the
   skill's Zod runtime dependency.
+
+## Required first-time setup
+
+Before making any repository changes, install the tooling and hooks:
+
+```bash
+npm install
+npm --prefix .agents/skills/sync-race-log/scripts install
+```
+
+The root install automatically runs Lefthook's `prepare` script to install the
+required pre-commit and pre-push hooks. Do not begin editing until both commands
+complete successfully.
