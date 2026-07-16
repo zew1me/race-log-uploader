@@ -48,24 +48,36 @@ When the workflow needs an authenticated WordPress session:
 
 ## Step 1 — Determine the sync window
 
-State file: `.claude/state/race-sync-state.json` (gitignored — local only).
+State file: `.agents/state/race-sync-state.json` (gitignored — local only),
+schema: `{ last_synced_date: "YYYY-MM-DD", synced_activity_ids: string[] }`
+(max 50 ids). `synced_activity_ids` is a belt-and-suspenders de-dupe list in
+case an activity falls exactly on the boundary date.
 
-- If the user gave an explicit period ("last 2 weeks", "since June 1",
-  specific dates), use that and don't touch the state file's read side.
-- Otherwise, read `last_synced_date` from the state file and use
-  `[last_synced_date, today]`. `today` is the `currentDate` from context.
-- If the state file doesn't exist yet, ask the user for a starting date
-  instead of guessing one.
+Read and write it only through the scripts in `scripts/` (run from the repo
+root) — never hand-edit or freeform-write the JSON. They validate the
+payload against a shared zod schema (`scripts/schema.ts`) before touching
+disk, and the write is atomic (temp file + rename), so a malformed or
+partial state file never lands in `.agents/state/`.
 
-```json
-{
-  "last_synced_date": "2026-06-01",
-  "synced_activity_ids": ["1234567890"]
-}
+One-time setup (skip if `scripts/node_modules/` already exists):
+
+```bash
+cd .claude/skills/sync-race-log/scripts && npm install
 ```
 
-`synced_activity_ids` is a belt-and-suspenders de-dupe list (recent IDs only,
-last ~50) in case an activity falls exactly on the boundary date.
+Read the current state:
+
+```bash
+npx tsx .claude/skills/sync-race-log/scripts/read-state.ts
+# -> {"exists":false}  or  {"exists":true,"state":{...}}
+```
+
+- If the user gave an explicit period ("last 2 weeks", "since June 1",
+  specific dates), use that and skip reading the state file.
+- Otherwise, use `[last_synced_date, today]` from the state read above.
+  `today` is the `currentDate` from context.
+- If `exists` is `false`, ask the user for a starting date instead of
+  guessing one.
 
 ## Step 2 — Find race activities on Strava
 
@@ -127,6 +139,17 @@ For each race, in the browser:
 ## Step 5 — Wrap up
 
 After processing all race activities (or if the user stops partway through),
-write the updated state file reflecting only what was actually submitted, and
-report a short summary: races added, races skipped (and why), and the new
-`last_synced_date`.
+write the updated state via the script — never edit the JSON file directly:
+
+```bash
+npx tsx .claude/skills/sync-race-log/scripts/write-state.ts \
+  '{"last_synced_date":"2026-06-05","synced_activity_ids":["1234567890","1234567891"]}'
+```
+
+Build the payload from what was *actually* submitted (per the contiguous-run
+rule in Step 4.5), not from everything found in Step 2. The script rejects a
+malformed payload (e.g. a non-`YYYY-MM-DD` date) and leaves the existing
+state file untouched, so a bad write can't corrupt the watermark.
+
+Then report a short summary: races added, races skipped (and why), and the
+new `last_synced_date`.

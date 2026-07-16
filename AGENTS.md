@@ -25,5 +25,5 @@ manually in the browser pane when prompted.
 The end-to-end sync workflow lives in
 [`.claude/skills/sync-race-log/SKILL.md`](.claude/skills/sync-race-log/SKILL.md).
 Invoke it by asking to sync/update the race log, optionally with a time
-period. It tracks the last synced date in `.claude/state/race-sync-state.json`
+period. It tracks the last synced date in `.agents/state/race-sync-state.json`
 (gitignored, local only) so re-runs only pick up new activities.
