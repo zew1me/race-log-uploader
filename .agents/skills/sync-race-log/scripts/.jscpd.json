@@ -3,7 +3,8 @@
   "threshold": 0,
   "minLines": 8,
   "minTokens": 70,
-  "reporters": ["ai"],
+  "reporters": ["ai", "json"],
+  "output": "tmp/jscpd",
   "noTips": true,
   "ignore": ["**/node_modules/**"]
 }
