@@ -90,9 +90,22 @@ For each race, in the browser:
 2. Read the form fields present (`read_page`) — don't assume a fixed field
    layout, inspect what's actually on the page each time in case the form
    changes.
-3. Map the gathered data onto the fields (race name/title, date, distance,
-   location, finish place, time, notes/description, Strava link, etc.) —
-   match by label text.
+3. Fill the race title and the additional fields by label:
+   - **Event Date** (required): use the event date in `m/d/y` format.
+   - **Type** (required): use the best available evidence and LLM judgment to
+     select exactly one of `Class`, `Cyclocross`, `Gravel`, `Mountain`,
+     `Other`, `Road`, `Track`, `Triathlon`, or `Volunteer`. Do not leave the
+     placeholder selected.
+   - **Category**: enter the event's category when known; otherwise leave it
+     blank.
+   - **Place** (required): enter the numeric result, `DNF`, or `N/A`; never
+     add an ordinal suffix such as `th`.
+   - **Cost**: enter a supported cost when known; otherwise leave it blank.
+   - **Attributes**: mark **Sanctioned** when the event is a USA Cycling event.
+     Mark **Mass Start** only when the entire event has one shared start time.
+     Mark **National Level** only when supported by the event information.
+   - **Travel Stipend Requested**: mark **Yes** only when the racer stayed
+     overnight for the race; it is $50 per racing day, not per night stayed.
 4. **Before clicking Publish/Submit**, show the user a short summary of what
    this entry will contain and ask for confirmation. This is a real form
    submission with personal data, so it needs explicit per-entry (or
